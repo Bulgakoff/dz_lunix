@@ -1,0 +1,84 @@
+1. Создать Ркпозиторий в GitHub
+2. Установить Virtualbox, установить Ubuntu.
+3. Установить утилиты для гостевой ОС вручную и написать команды для
+-- монтирование оптического диска с guest additions
+
+что бы установить пакеты (ОБНОВЛЕНИЕ кэша репозитория):
+sudo apt-get update
+установка пакетов:
+sudo apt-get install gcc make perl
+монтируем диск в корневую директорию:
+mount | grep sr0
+(монтируем вручную)
+делаем каталог
+mkdir /media/hlbu/addition
+ и далее монтируем:
+sudo mount /dev/sr0 /media/hlbu/addition/
+-- запуска установки virtualbox гостевых дополнений
+-- установка недостающих зависимостей gcc make perl
+запускаем в каталоге обновления:
+sudo ./auturun.sh
+ перезагружаем: 
+sudo reboot
+4. В конфигурации виртуальной машины включить "общий буфер". Заменить NAT сетевой интерфейс на Bridged (либо на Windows добавить еще один internal интерфейс)
+    В настройках VM в сетях ставим 'Сетевой мост'
+5. Настроить ssh соединение с хостовой ОС на гостевую ОС с использованием ssh ключа и написать команды для:
+-- установки ssh сервер
+Ставим ssh : 
+sudo apt install openssh-server (перед этим можно проверить статус ssh)
+-- открытие справки для команды ufw
+man ufw
+-- включение службы ssh сервера
+service ssh start 
+-- добавления порта 22 в исключения фаервола
+чтобы добавить порт 22 в исключения fw (для подключеняи по ssh с включенным fw):
+hlbu@hlbu-ubuntu:~$  sudo ufw allow 22
+Rule added
+Rule added (v6)
+-- генерации ssh ключа
+hlbu@hlbu-ubuntu:~$ ssh
+usage: ssh [-46AaCfGgKkMNnqsTtVvXxYy] [-b bind_address] [-c cipher_spec]
+           [-D [bind_address:]port] [-E log_file] [-e escape_char]
+           [-F configfile] [-I pkcs11] [-i identity_file]
+           [-J [user@]host[:port]] [-L address] [-l login_name] [-m mac_spec]
+           [-O ctl_cmd] [-o option] [-p port] [-Q query_option] [-R address]
+           [-S ctl_path] [-W host:port] [-w local_tun[:remote_tun]]
+           [user@]hostname [command]
+что бы создать ключ :
+hlbu@hlbu-ubuntu:~$ ssh-keygen
+Generating public/private rsa key pair.
+Enter file in which to save the key (/home/hlbu/.ssh/id_rsa):
+/home/hlbu/.ssh/id_rsa already exists.
+Overwrite (y/n)? y
+Enter passphrase (empty for no passphrase):
+Enter same passphrase again:
+Your identification has been saved in /home/hlbu/.ssh/id_rsa.
+Your public key has been saved in /home/hlbu/.ssh/id_rsa.pub.
+The key fingerprint is:
+SHA256:RGALfWGc34/PdSWPw8b1XWEwhKefVFw0CMGlJXRW2sE hlbu@hlbu-ubuntu
+The key's randomart image is:
++---[RSA 2048]----+
+|    ..oo+oo=*O*=+|
+|     o.++  o*o+Eo|
+|      .... oo.o..|
+|       .  ..... +|
+|        S   o=.==|
+|            .oB *|
+|             + o.|
+|              o  |
+|                 |
++----[SHA256]-----+
+смотрим содержимое ключей:
+hlbu@hlbu-ubuntu:~$ cat /home/hlbu/.ssh/id_rsa
+
+копируем ключ в тектовый файл 
+
+в puttygen загружаем файл 
+(Save privat key)
+меняя формат на putty на Deskstop
+ 
+копируем публичный ключ в файл authorized_keys
+cp ~/.shh/id_rsa.pub ~/.ssh/authorized_keys
+
+перезагружаем систему :
+sudo systenctl restart
